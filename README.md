@@ -51,6 +51,15 @@ python -m src generate-ideas --count 10
 python -m src generate-ideas --count 10 --force
 ```
 
-## Phase 3 Preview
+Production commands create voiceover audio, SRT subtitles, and a vertical MP4. If no background video exists at `assets/backgrounds/{idea_id}.mp4`, rendering uses a generated dark background.
 
-Phase 3 should add voiceover generation, caption/subtitle generation, FFmpeg rendering, and package export for manual posting.
+```powershell
+python -m src generate-script --idea-id IDEA_ID
+python -m src voiceover --idea-id IDEA_ID
+python -m src render --idea-id IDEA_ID
+ffprobe -v error -show_entries format=duration,size outputs\videos\IDEA_ID.mp4
+```
+
+## Phase 4 Preview
+
+Phase 4 should add platform package exports, a daily runner, PowerShell automation scripts, and expanded README operating docs.

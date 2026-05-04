@@ -8,7 +8,16 @@ from rich.console import Console
 from rich.panel import Panel
 from rich.table import Table
 
-from src import db, idea_generator, performance_context, script_generator, sheets
+from src import (
+    captions,
+    db,
+    idea_generator,
+    performance_context,
+    renderer,
+    script_generator,
+    sheets,
+    voiceover,
+)
 from src.logger import get_logger
 from src.models import Idea
 from src.settings import settings
@@ -162,3 +171,55 @@ def generate_script_command(idea_id: str = typer.Option(..., "--idea-id")) -> No
     console.print(f"[green]{succeeded} succeeded[/green], [red]{failed} failed[/red]")
     if failed:
         raise typer.Exit(code=1)
+
+
+@app.command("voiceover")
+def voiceover_command(idea_id: str = typer.Option(..., "--idea-id")) -> None:
+    """Generate voiceover audio and SRT subtitles for one script."""
+
+    db.init_db()
+    script = db.get_script(idea_id)
+    if script is None:
+        console.print(f"[red]Script not found:[/red] {idea_id}")
+        raise typer.Exit(code=1)
+
+    audio_path = Path("outputs") / "audio" / f"{idea_id}.mp3"
+    srt_path = Path("outputs") / "subtitles" / f"{idea_id}.srt"
+    try:
+        voiceover.generate_voiceover(script.full_text, audio_path)
+        duration = voiceover.estimate_duration_seconds(script.full_text)
+        captions.generate_srt(script, duration, srt_path)
+        db.mark_status(idea_id, "voiceover_status", "done")
+        db.mark_status(idea_id, "status", "Voiceover Done")
+        console.print(f"[green]Audio:[/green] {audio_path}")
+        console.print(f"[green]Subtitles:[/green] {srt_path}")
+        console.print("[green]1 succeeded[/green], [red]0 failed[/red]")
+    except Exception as exc:
+        logger.exception("Voiceover failed for %s: %s", idea_id, exc)
+        try:
+            db.mark_status(idea_id, "voiceover_status", "failed")
+        except Exception as status_exc:
+            logger.exception("Failed to mark voiceover failure for %s: %s", idea_id, status_exc)
+        console.print("[green]0 succeeded[/green], [red]1 failed[/red]")
+        raise typer.Exit(code=1) from exc
+
+
+@app.command("render")
+def render_command(idea_id: str = typer.Option(..., "--idea-id")) -> None:
+    """Render a vertical MP4 for one idea."""
+
+    db.init_db()
+    try:
+        video_path = renderer.render_video(idea_id)
+        db.mark_status(idea_id, "video_status", "done")
+        db.mark_status(idea_id, "status", "Rendered")
+        console.print(f"[green]Video:[/green] {video_path}")
+        console.print("[green]1 succeeded[/green], [red]0 failed[/red]")
+    except Exception as exc:
+        logger.exception("Render failed for %s: %s", idea_id, exc)
+        try:
+            db.mark_status(idea_id, "video_status", "failed")
+        except Exception as status_exc:
+            logger.exception("Failed to mark render failure for %s: %s", idea_id, status_exc)
+        console.print("[green]0 succeeded[/green], [red]1 failed[/red]")
+        raise typer.Exit(code=1) from exc

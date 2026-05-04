@@ -1,5 +1,7 @@
 """Caption and subtitle helpers for generated scripts."""
 
+from pathlib import Path
+
 from src.models import Script
 
 
@@ -10,20 +12,79 @@ def build_plain_caption(script: Script, max_chars: int = 140) -> str:
     return caption[: max_chars - 3].rstrip() + "..." if len(caption) > max_chars else caption
 
 
-def build_srt(script: Script, seconds_per_line: int = 4) -> str:
-    """Create a simple SRT subtitle file from script sections."""
+def _format_timestamp(seconds: float) -> str:
+    """Format seconds as an SRT timestamp."""
 
-    lines = [line for line in script.full_text.splitlines() if line.strip()]
+    total_ms = max(0, round(seconds * 1000))
+    hours, remainder = divmod(total_ms, 3_600_000)
+    minutes, remainder = divmod(remainder, 60_000)
+    secs, millis = divmod(remainder, 1000)
+    return f"{hours:02d}:{minutes:02d}:{secs:02d},{millis:03d}"
+
+
+def _segments(script: Script) -> list[str]:
+    """Return script sections as subtitle segments."""
+
+    return [
+        script.hook,
+        script.problem,
+        script.old_way,
+        *script.steps,
+        script.caveat,
+        script.cta,
+    ]
+
+
+def segment_timings(script: Script, audio_duration: float) -> list[tuple[str, float, float]]:
+    """Estimate segment timings proportional to word count."""
+
+    segments = [segment.strip() for segment in _segments(script) if segment.strip()]
+    word_counts = [max(1, len(segment.split())) for segment in segments]
+    total_words = max(1, sum(word_counts))
+    cursor = 0.0
+    timings = []
+    for index, segment in enumerate(segments):
+        if index == len(segments) - 1:
+            end = max(cursor + 0.5, audio_duration)
+        else:
+            end = cursor + (audio_duration * word_counts[index] / total_words)
+        timings.append((segment, cursor, end))
+        cursor = end
+    return timings
+
+
+def generate_srt(script: Script, audio_duration: float, output_path: Path) -> Path:
+    """Generate an SRT subtitle file from a structured script."""
+
+    # TODO: Add faster-whisper integration for production-quality sync.
+    output_path.parent.mkdir(parents=True, exist_ok=True)
     blocks = []
-    for index, line in enumerate(lines, start=1):
-        start = (index - 1) * seconds_per_line
-        end = index * seconds_per_line
+    for index, (segment, start, end) in enumerate(segment_timings(script, audio_duration), 1):
         blocks.append(
             "\n".join(
                 [
                     str(index),
-                    f"00:00:{start:02d},000 --> 00:00:{end:02d},000",
-                    line,
+                    f"{_format_timestamp(start)} --> {_format_timestamp(end)}",
+                    segment,
+                ]
+            )
+        )
+    output_path.write_text("\n\n".join(blocks) + "\n", encoding="utf-8")
+    return output_path
+
+
+def build_srt(script: Script, seconds_per_line: int = 4) -> str:
+    """Create a simple SRT subtitle string from script sections."""
+
+    duration = max(seconds_per_line, seconds_per_line * len(_segments(script)))
+    blocks = []
+    for index, (segment, start, end) in enumerate(segment_timings(script, duration), 1):
+        blocks.append(
+            "\n".join(
+                [
+                    str(index),
+                    f"{_format_timestamp(start)} --> {_format_timestamp(end)}",
+                    segment,
                 ]
             )
         )
