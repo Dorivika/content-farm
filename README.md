@@ -44,6 +44,13 @@ python -m src init-db
 python -m src check-backlog
 ```
 
-## Phase 2 Preview
+Idea generation uses Gemini Deep Research when `GEMINI_API_KEY` is set. The command first checks the Google Sheet backlog and skips generation when `Backlog` rows are at or above `BACKLOG_MINIMUM`, unless `--force` is passed. Historical rows with manual analytics metrics are included in the research prompt so future ideas can favor pillars, audiences, tools, and angles that performed well.
 
-Phase 2 should add Gemini-backed ideation, prompt orchestration, script generation commands, approval workflow commands, and synchronization between SQLite and Google Sheets.
+```powershell
+python -m src generate-ideas --count 10
+python -m src generate-ideas --count 10 --force
+```
+
+## Phase 3 Preview
+
+Phase 3 should add voiceover generation, caption/subtitle generation, FFmpeg rendering, and package export for manual posting.

@@ -39,6 +39,23 @@ CORE_FIELDS = [
     "video_status",
     "notes",
 ]
+ANALYTICS_FIELDS = [
+    "published_url_youtube",
+    "published_url_tiktok",
+    "published_url_instagram",
+    "views_24h",
+    "avg_view_duration",
+    "retention_percent",
+    "likes",
+    "comments",
+    "shares",
+    "saves",
+    "profile_visits",
+    "link_clicks",
+    "email_signups",
+    "sales",
+]
+ALL_FIELDS = CORE_FIELDS + ANALYTICS_FIELDS
 SCOPES = ["https://www.googleapis.com/auth/spreadsheets"]
 
 
@@ -57,6 +74,13 @@ def _credentials_path() -> Path:
     if not path.exists():
         raise FileNotFoundError(f"Service account JSON not found at {path}. See README.")
     return path
+
+
+def _range(a1_range: str) -> str:
+    """Return an escaped A1 range for the configured sheet tab."""
+
+    tab = settings.google_sheet_tab.replace("'", "''")
+    return f"'{tab}'!{a1_range}"
 
 
 @lru_cache(maxsize=1)
@@ -80,7 +104,7 @@ def read_rows() -> list[dict[str, str]]:
     result = (
         service.spreadsheets()
         .values()
-        .get(spreadsheetId=_sheet_id(), range=settings.google_sheet_tab)
+        .get(spreadsheetId=_sheet_id(), range=_range("A:ZZ"))
         .execute()
     )
     values = result.get("values", [])
@@ -105,7 +129,7 @@ def append_ideas(ideas: list[Idea]) -> None:
         rows.append([payload.get(field, "") for field in CORE_FIELDS])
     get_service().spreadsheets().values().append(
         spreadsheetId=_sheet_id(),
-        range=settings.google_sheet_tab,
+        range=_range("A1"),
         valueInputOption="USER_ENTERED",
         insertDataOption="INSERT_ROWS",
         body={"values": rows},
@@ -122,3 +146,13 @@ def get_rows_by_status(status: str) -> list[dict[str, str]]:
     """Return sheet rows matching a primary status value."""
 
     return [row for row in read_rows() if row.get("status") == status]
+
+
+def get_performance_rows(limit: int = 50) -> list[dict[str, str]]:
+    """Return recent rows that include any manual analytics metrics."""
+
+    rows = []
+    for row in read_rows():
+        if any(str(row.get(field, "")).strip() for field in ANALYTICS_FIELDS):
+            rows.append(row)
+    return rows[-limit:]

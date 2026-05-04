@@ -12,9 +12,11 @@ data/logs/*.log
 outputs/audio/*
 outputs/subtitles/*
 outputs/videos/*
+outputs/packages/*_script.txt
 outputs/packages/youtube/*
 outputs/packages/tiktok/*
 outputs/packages/instagram/*
 !**/.gitkeep
 .venv/
 venv/
+config/service_account.json
