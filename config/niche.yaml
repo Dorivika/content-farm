@@ -1,0 +1,39 @@
+niche: "practical AI workflows for founders, operators, freelancers, small businesses, and technical builders"
+
+audience:
+  primary:
+    - solo founders
+    - small business operators
+    - freelancers
+    - technical builders
+  secondary:
+    - Indian tech professionals
+    - career switchers into tech
+
+content_pillars:
+  - id: manual_to_ai
+    label: "Manual task -> AI workflow"
+  - id: smb_automation
+    label: "Small business problem -> automation"
+  - id: ai_tool_stack
+    label: "AI tool stack for a specific role"
+  - id: saas_alternative
+    label: "Free/cheap alternative to expensive SaaS"
+  - id: tiny_automation
+    label: "Tiny Python/n8n/Make/Zapier automation"
+  - id: workflow_teardown
+    label: "AI workflow teardown"
+  - id: prompt_system
+    label: "Prompt system that improves a real task"
+  - id: before_after
+    label: "Business process before/after"
+  - id: productivity_system
+    label: "Founder/operator productivity system"
+  - id: india_tech
+    label: "AI workflow for Indian tech/career audience"
+
+banned_topics:
+  - cryptocurrency trading bots
+  - get rich quick schemes
+  - dropshipping
+  - fake testimonials

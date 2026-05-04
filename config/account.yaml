@@ -1,0 +1,30 @@
+brand:
+  name: "AI Workflow Daily"
+  tagline: "Replace one boring business task with a simple AI workflow."
+  tone:
+    - useful
+    - direct
+    - skeptical
+    - no hype
+    - no fake claims
+
+creator:
+  handle: "@aiworkflowdaily"
+  platforms:
+    - youtube_shorts
+    - tiktok
+    - instagram_reels
+
+defaults:
+  cta: "Follow for one AI workflow a day."
+  hashtag_pool:
+    - "#AIWorkflow"
+    - "#Automation"
+    - "#SmallBusiness"
+    - "#AITools"
+    - "#NoCode"
+    - "#Productivity"
+    - "#TechTips"
+    - "#FreelancerLife"
+    - "#FounderLife"
+    - "#WorkSmarter"
