@@ -24,6 +24,7 @@ RULES:
 - No get-rich-quick, crypto, dropshipping, or guru content.
 - No stolen phrasing from existing creators.
 - Each idea must name a specific tool, workflow, or technique.
+- `suggested_visuals` must include 3-5 concrete b-roll search keywords and one UI mockup idea per workflow step.
 - Hooks must create curiosity or friction in under 8 words.
 - Vary content pillars across the batch.
 - At least 20% of ideas should target the Indian tech/career audience.

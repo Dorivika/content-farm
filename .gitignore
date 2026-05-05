@@ -29,9 +29,13 @@ data/*.sqlite3
 data/analytics.csv
 data/logs/*.log
 *.log
+assets/backgrounds/*.mp4
+assets/backgrounds/*.mov
 outputs/audio/*
 outputs/subtitles/*
 outputs/videos/*
+outputs/images/*
+outputs/captions/*
 outputs/packages/*_script.txt
 outputs/packages/render_text/*
 outputs/packages/youtube/*

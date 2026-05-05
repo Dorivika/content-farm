@@ -75,6 +75,7 @@ Fill in:
 
 ```env
 GEMINI_API_KEY=
+PEXELS_API_KEY=
 GOOGLE_SHEET_ID=
 GOOGLE_SHEET_TAB=Ideas
 GOOGLE_CREDENTIALS_PATH=config/service_account.json
@@ -85,9 +86,10 @@ DEFAULT_VIDEO_SECONDS=45
 FFMPEG_PATH=ffmpeg
 LOG_LEVEL=INFO
 OFFLINE_MODE=false
+GEMINI_IMAGE_MODEL=gemini-3.1-flash-image-preview
 ```
 
-`GEMINI_API_KEY` comes from Google AI Studio. If it is empty, the project uses deterministic sample ideas and offline script fallback. Set `OFFLINE_MODE=true` to force local fallbacks even when Windows has API keys configured. When the key is set and offline mode is false, idea generation uses Gemini Deep Research and is gated by `BACKLOG_MINIMUM` to limit cost.
+`GEMINI_API_KEY` comes from Google AI Studio. `PEXELS_API_KEY` comes from pexels.com/api. If keys are empty, the project uses deterministic sample ideas, text-only visuals, solid backgrounds, and SRT-style captions. Set `OFFLINE_MODE=true` to force local fallbacks even when Windows has API keys configured. When the Gemini key is set and offline mode is false, idea generation uses Gemini Deep Research and is gated by `BACKLOG_MINIMUM` to limit cost.
 
 ## 5. Testing Without API Keys
 
@@ -180,8 +182,10 @@ python -m src run-daily
 - `src/performance_context.py`: converts historical analytics into prompt context.
 - `src/script_generator.py`: Gemini script generation plus offline fallback.
 - `src/voiceover.py`: edge-tts audio generation plus silent FFmpeg fallback.
-- `src/captions.py`: structured SRT generation.
-- `src/renderer.py`: FFmpeg vertical MP4 rendering.
+- `src/captions.py`: pycaps caption overlay attempt plus structured SRT fallback.
+- `src/broll.py`: Pexels vertical video search and cached b-roll downloads.
+- `src/visual_generator.py`: Gemini image generation for workflow step mockups.
+- `src/renderer.py`: FFmpeg vertical MP4 compositing with b-roll, mockups, captions, and audio.
 - `src/package_exporter.py`: platform package text exports.
 - `src/analytics.py`: CSV and SQLite event logging.
 - `src/pipeline.py`: reusable pipeline actions.

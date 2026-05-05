@@ -13,6 +13,7 @@ class Settings(BaseSettings):
     """Typed configuration values for the local automation pipeline."""
 
     gemini_api_key: str = Field(default="", alias="GEMINI_API_KEY")
+    pexels_api_key: str = Field(default="", alias="PEXELS_API_KEY")
     google_sheet_id: str = Field(default="", alias="GOOGLE_SHEET_ID")
     google_sheet_tab: str = Field(default="Ideas", alias="GOOGLE_SHEET_TAB")
     google_credentials_path: Path = Field(
@@ -26,6 +27,10 @@ class Settings(BaseSettings):
     ffmpeg_path: str = Field(default="ffmpeg", alias="FFMPEG_PATH")
     log_level: str = Field(default="INFO", alias="LOG_LEVEL")
     offline_mode: bool = Field(default=False, alias="OFFLINE_MODE")
+    gemini_image_model: str = Field(
+        default="gemini-3.1-flash-image-preview",
+        alias="GEMINI_IMAGE_MODEL",
+    )
     gemini_deep_research_agent: str = Field(
         default="deep-research-preview-04-2026",
         alias="GEMINI_DEEP_RESEARCH_AGENT",

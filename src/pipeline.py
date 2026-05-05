@@ -88,15 +88,17 @@ def generate_voiceover_assets(idea_id: str) -> tuple[Path, Path]:
         raise ValueError(f"Script not found: {idea_id}")
     audio_path = Path("outputs") / "audio" / f"{idea_id}.mp3"
     srt_path = Path("outputs") / "subtitles" / f"{idea_id}.srt"
+    overlay_path = Path("outputs") / "captions" / f"{idea_id}_captions.mov"
     voiceover.generate_voiceover(script.full_text, audio_path)
     duration = voiceover.estimate_duration_seconds(script.full_text)
     captions.generate_srt(script, duration, srt_path)
+    captions.generate_caption_overlay(audio_path, overlay_path)
     db.mark_status(idea_id, "voiceover_status", "done")
     db.mark_status(idea_id, "status", "Voiceover Done")
     analytics.append_event(
         idea_id,
         "voiceover_generated",
-        {"audio_path": str(audio_path), "srt_path": str(srt_path)},
+        {"audio_path": str(audio_path), "srt_path": str(srt_path), "overlay_path": str(overlay_path)},
     )
     return audio_path, srt_path
 
