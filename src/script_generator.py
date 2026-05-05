@@ -101,7 +101,7 @@ def _parse_script(idea: Idea, raw_text: str) -> Script | None:
 def generate_script(idea: Idea) -> Script:
     """Generate a structured script with Gemini or an offline fallback."""
 
-    if not settings.gemini_api_key:
+    if settings.offline_mode or not settings.gemini_api_key:
         return build_script_from_idea(idea)
     prompt = render_template(
         "script_generator.md",

@@ -25,6 +25,7 @@ class Settings(BaseSettings):
     default_video_seconds: int = Field(default=45, alias="DEFAULT_VIDEO_SECONDS")
     ffmpeg_path: str = Field(default="ffmpeg", alias="FFMPEG_PATH")
     log_level: str = Field(default="INFO", alias="LOG_LEVEL")
+    offline_mode: bool = Field(default=False, alias="OFFLINE_MODE")
     gemini_deep_research_agent: str = Field(
         default="deep-research-preview-04-2026",
         alias="GEMINI_DEEP_RESEARCH_AGENT",

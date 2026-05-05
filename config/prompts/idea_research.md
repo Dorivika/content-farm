@@ -55,3 +55,10 @@ For each idea, return ALL of these fields:
 - notes (string, any additional context)
 
 Return ONLY a JSON array. No markdown fencing, no explanation, no preamble.
+
+CRITICAL OUTPUT FORMAT:
+- Do not return Markdown tables.
+- Do not write "Concept 1", "Strategic Detail", a research report, a summary, or sources.
+- The first character of your response must be `[`.
+- The last character of your response must be `]`.
+- If you conducted research, silently use it to improve the JSON ideas; do not include the research narrative.

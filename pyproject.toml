@@ -5,26 +5,26 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "faceless-content-farm"
 version = "0.1.0"
-description = "Windows-first content automation MVP foundation for human-approved short-form ideas."
+description = "Content automation MVP for faceless short-form video"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
-  "typer>=0.12.0",
-  "rich>=13.7.0",
-  "google-api-python-client>=2.120.0",
-  "google-auth>=2.29.0",
-  "google-genai>=1.0.0",
-  "edge-tts>=6.1.12",
-  "python-dotenv>=1.0.1",
+  "typer>=0.9.0",
+  "rich>=13.0.0",
   "pydantic>=2.0.0",
-  "pydantic-settings>=2.2.1",
-  "PyYAML>=6.0.1",
+  "pydantic-settings>=2.0.0",
+  "python-dotenv>=1.0.0",
+  "PyYAML>=6.0.0",
+  "google-genai>=1.0.0",
+  "google-api-python-client>=2.100.0",
+  "google-auth>=2.23.0",
+  "edge-tts>=6.1.0",
 ]
 
 [project.optional-dependencies]
 dev = [
-  "pytest>=8.0.0",
-  "pytest-asyncio>=0.23.0",
+  "pytest>=7.4.0",
+  "pytest-asyncio>=0.21.0",
 ]
 
 [project.scripts]

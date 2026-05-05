@@ -1,14 +1,9 @@
 """Deep Research-backed idea generation with deterministic offline fallback."""
 
-import json
-import re
-from datetime import date
 from typing import Any
-from uuid import uuid4
-
-from pydantic import ValidationError
 
 from src.deep_research import run_deep_research
+from src.idea_parser import parse_ideas
 from src.logger import get_logger
 from src.models import Idea
 from src.prompts import load_account_config, load_niche_config, render_template
@@ -124,14 +119,6 @@ def _sample_idea_payloads() -> list[dict[str, Any]]:
     ]
 
 
-def _extract_json(text: str) -> str:
-    """Extract a JSON payload from a model response."""
-
-    cleaned = text.strip()
-    fence = re.search(r"```(?:json)?\s*(.*?)```", cleaned, re.DOTALL)
-    return fence.group(1).strip() if fence else cleaned
-
-
 def _build_prompt(count: int, performance_history: str) -> str:
     """Render the idea research prompt from YAML configuration."""
 
@@ -152,31 +139,6 @@ def _build_prompt(count: int, performance_history: str) -> str:
     )
 
 
-def _parse_ideas(raw_text: str) -> list[Idea]:
-    """Parse Gemini JSON into validated Idea models."""
-
-    try:
-        payload = json.loads(_extract_json(raw_text))
-    except json.JSONDecodeError:
-        logger.error("Failed to parse Gemini idea JSON: %s", raw_text)
-        return []
-    if not isinstance(payload, list):
-        logger.error("Gemini idea response was not a JSON array: %s", raw_text)
-        return []
-    ideas: list[Idea] = []
-    for item in payload:
-        if not isinstance(item, dict):
-            logger.warning("Dropping non-object idea payload: %s", item)
-            continue
-        item["idea_id"] = str(uuid4())
-        item["date_added"] = date.today().isoformat()
-        try:
-            ideas.append(Idea(**item))
-        except ValidationError as exc:
-            logger.warning("Dropping invalid idea payload: %s", exc)
-    return ideas
-
-
 def generate_sample_ideas() -> list[Idea]:
     """Generate five deterministic valid ideas for offline testing."""
 
@@ -192,12 +154,12 @@ def generate_seed_ideas(count: int = 5) -> list[Idea]:
 def generate_ideas(count: int | None = None, performance_history: str = "[]") -> list[Idea]:
     """Generate original content ideas with Deep Research or an offline fallback."""
 
-    if not settings.gemini_api_key:
+    if settings.offline_mode or not settings.gemini_api_key:
         logger.warning("No Gemini API key. Using sample ideas for testing.")
         return generate_sample_ideas()
     idea_count = count or settings.ideas_to_generate
     try:
-        return _parse_ideas(run_deep_research(_build_prompt(idea_count, performance_history)))
+        return parse_ideas(run_deep_research(_build_prompt(idea_count, performance_history)))
     except Exception as exc:
         logger.exception("Deep Research idea generation failed: %s", exc)
         return []

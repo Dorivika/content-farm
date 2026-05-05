@@ -26,12 +26,14 @@ data/content.db
 data/*.db
 data/*.sqlite
 data/*.sqlite3
+data/analytics.csv
 data/logs/*.log
 *.log
 outputs/audio/*
 outputs/subtitles/*
 outputs/videos/*
 outputs/packages/*_script.txt
+outputs/packages/render_text/*
 outputs/packages/youtube/*
 outputs/packages/tiktok/*
 outputs/packages/instagram/*

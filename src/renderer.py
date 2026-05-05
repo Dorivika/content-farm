@@ -1,5 +1,6 @@
 """FFmpeg rendering helpers for vertical videos."""
 
+import hashlib
 import re
 import subprocess
 from pathlib import Path
@@ -65,14 +66,23 @@ def _font_filter_part() -> str:
     return f":fontfile={_to_filter_path(font_files[0])}" if font_files else ""
 
 
+def _textfile_path(text: str) -> str:
+    """Write drawtext content to a text file and return its filter path."""
+
+    digest = hashlib.sha1(text.encode("utf-8")).hexdigest()
+    path = Path("outputs") / "packages" / "render_text" / f"{digest}.txt"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(text, encoding="utf-8")
+    return _to_filter_path(path)
+
+
 def _drawtext(text: str, y: str, size: int, extra: str = "") -> str:
     """Build one FFmpeg drawtext filter."""
 
     font = _font_filter_part()
-    escaped = _escape_drawtext(text)
     return (
         "drawtext="
-        f"text={escaped}"
+        f"textfile='{_textfile_path(text)}'"
         f"{font}:fontsize={size}:fontcolor=white:"
         "box=1:boxcolor=black@0.45:boxborderw=24:"
         f"x=(w-text_w)/2:y={y}{extra}"
@@ -201,31 +211,4 @@ def render_video(idea_id: str) -> Path:
     output_path = Path("outputs") / "videos" / f"{idea_id}.mp4"
     if not output_path.exists() or output_path.stat().st_size == 0:
         raise RuntimeError(f"FFmpeg did not produce a playable file at {output_path}")
-    return output_path
-
-
-def render_color_video(audio_path: Path, output_path: Path, seconds: int | None = None) -> Path:
-    """Render a basic vertical video with an audio track using FFmpeg."""
-
-    _check_ffmpeg()
-    duration = seconds or settings.default_video_seconds
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    command = [
-        settings.ffmpeg_path,
-        "-y",
-        "-f",
-        "lavfi",
-        "-i",
-        f"color=c=0x101820:s=1080x1920:d={duration}:r=30",
-        "-i",
-        str(audio_path),
-        "-shortest",
-        "-c:v",
-        "libx264",
-        "-c:a",
-        "aac",
-        str(output_path),
-    ]
-    logger.debug("Running FFmpeg color render command: %s", command)
-    subprocess.run(command, check=True)
     return output_path
